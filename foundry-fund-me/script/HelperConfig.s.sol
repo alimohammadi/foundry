@@ -8,7 +8,7 @@ contract HelperConfig is Script {
     // Otherwise, grab the existing address from the live network
     NetworkConfig public activeNetworkConfig;
     uint8 public constant DECIMALS = 8;
-    uint256 public constant INITIAL_PRICE = 2000e8;
+    int256 constant INITIAL_PRICE = 2000e8;
 
     struct NetworkConfig {
         address priceFeed; // ETH/USD price feed
