@@ -29,9 +29,10 @@ async function withdraw() {
   console.log(`Withdrawing...`)
   if (typeof window.ethereum !== "undefined") {
     const provider = new ethers.BrowserProvider(window.ethereum)
-    await provider.send('eth_requestAccounts', [])
+    await provider.send("eth_requestAccounts", [])
     const signer = await provider.getSigner()
     const contract = new ethers.Contract(contractAddress, abi, signer)
+
     try {
       console.log("Processing transaction...")
       const transactionResponse = await contract.withdraw()
@@ -50,8 +51,10 @@ async function fund() {
   console.log(`Funding with ${ethAmount}...`)
   if (typeof window.ethereum !== "undefined") {
     const provider = new ethers.BrowserProvider(window.ethereum)
-    await provider.send('eth_requestAccounts', [])
+    await provider.send("eth_requestAccounts", [])
     const signer = await provider.getSigner()
+    console.log("signer,provider", signer, provider)
+
     const contract = new ethers.Contract(contractAddress, abi, signer)
     try {
       const transactionResponse = await contract.fund({
@@ -69,6 +72,8 @@ async function fund() {
 async function getBalance() {
   if (typeof window.ethereum !== "undefined") {
     const provider = new ethers.BrowserProvider(window.ethereum)
+    console.log("provider", provider)
+
     try {
       const balance = await provider.getBalance(contractAddress)
       console.log(ethers.formatEther(balance))
