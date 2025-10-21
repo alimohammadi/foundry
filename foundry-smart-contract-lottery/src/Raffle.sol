@@ -20,7 +20,7 @@
 // view & pure functions
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
@@ -60,14 +60,14 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint256 private constant ROLL_IN_PROGRESS = 42;
     uint32 private constant NUM_WORDS = 1;
     address private sRecentWinner;
-    RaffleState private sRaffleState;
+    RaffleState private sRaffleState; // start as open
 
     /**
      * Events
      */
     event RaffleEntered(address indexed player);
-    event DiceRolled(uint256 indexed requestId, address indexed roller);
     event WinnerPicked(address indexed winner);
+    event DiceRolled(uint256 indexed requestId, address indexed roller);
 
     constructor(
         uint256 enteranceFee,
@@ -199,5 +199,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /* Getter functions */
     function getEnteranceFee() external view returns (uint256) {
         return I_ENTERANCE_FEE;
+    }
+
+    function getRaffleState() external view returns (RaffleState) {
+        return sRaffleState;
+    }
+
+    function getPlayer(uint256 index) external view returns (address) {
+        return sPlayers[index];
     }
 }
