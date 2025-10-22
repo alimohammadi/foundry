@@ -72,4 +72,23 @@ contract RaffleTest is Test {
         emit RaffleEntered(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
     }
+
+    function testDontAllowEntranceWhenRaffleIsCalculating() public {
+        // Arrange
+        vm.prank(PLAYER); //Makes the next call be sent from the address PLAYER.
+
+        //Simulates the player entering the raffle by paying the entrance fee.
+        //At this point, the raffle state is likely OPEN.
+        raffle.enterRaffle{value: entranceFee}();
+
+        vm.warp(block.timestamp + interval + 1); //Moves time forward in the test blockchain — adds the raffle interval + 1 second.
+        vm.roll(block.number + 1); //Advances the block number by one.
+
+        // raffle.performUpkeep(""); //Calls the function that changes the raffle’s state from OPEN ➜ CALCULATING
+
+        // Act / Assert
+        vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+    }
 }
