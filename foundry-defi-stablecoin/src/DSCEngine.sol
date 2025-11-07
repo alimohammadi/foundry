@@ -31,6 +31,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 // import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {OracleLib} from "./libraries/OracleLib.sol";
 
 /*
 // @title DSCEngine
@@ -50,7 +51,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DSCEngine is ReentrancyGuard {
     //////////////////////////////
-    //      Errors
+    //      Errors              //
     //////////////////////////////
     error DSCEngine__MustBeMoreThanZero();
     error DSCEngine__TokenAddressesAndPriceFeedAddressesMustBeSameLength();
@@ -62,7 +63,12 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__HealthFactorNotImproved();
 
     //////////////////////////////
-    //      State Variables
+    //      Types               //
+    //////////////////////////////
+    using OracleLib for AggregatorV3Interface;
+
+    //////////////////////////////
+    //      State Variables.    //
     //////////////////////////////
     uint256 private constant ADDITIONAL_FEED_PRECISION = 1e10;
     uint256 private constant PRECISION = 1e18;
@@ -79,7 +85,7 @@ contract DSCEngine is ReentrancyGuard {
     DecentralizedStableCoin private immutable I_DSC;
 
     //////////////////////////////
-    //      Events
+    //      Events              //
     //////////////////////////////
     event CollateralDeposited(address indexed user, address indexed token, uint256 amount);
     event CollateralRedeemed(
@@ -87,7 +93,7 @@ contract DSCEngine is ReentrancyGuard {
     );
 
     //////////////////////////////
-    //      Modifiers
+    //      Modifiers           //
     //////////////////////////////
     modifier moreThanZero(uint256 amount) {
         if (amount <= 0) {
@@ -382,17 +388,25 @@ contract DSCEngine is ReentrancyGuard {
         // We want to have everything in terms of WEI, so we add 10 zeros at the end
 
         AggregatorV3Interface priceFeed = AggregatorV3Interface(sPriceFeeds[token]); //get the price of ETH (token)
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (, int256 price,,,,) = priceFeed.staleCheckLatestRoundData();
 
         return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
     }
 
     function getAmountFromUsd(address token, uint256 usdAmount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(sPriceFeeds[token]); //get the price of token
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (, int256 price,,,,) = priceFeed.staleCheckLatestRoundData();
         // 1 ETH = 1000$
         // The return value from CL will be 1000 * 1e8 (8 decimal places)
         // ($10e18 * 1e18) / ($2000e8 * 1e10) = 0.005e18 = 0.005 ETH
         return (usdAmount * PRECISION) / (uint256(price) * ADDITIONAL_FEED_PRECISION); // (1000 * 1e18) / (1000 * 1e8) = 1e18
+    }
+
+    function getAccountInformation(address user)
+        external
+        view
+        returns (uint256 totalDscMinted, uint256 collaterallValueInUsd)
+    {
+        (totalDscMinted, collaterallValueInUsd) = _getAccountInformation(user);
     }
 }
