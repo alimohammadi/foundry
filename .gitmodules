@@ -46,3 +46,12 @@
 [submodule "foundry-defi-stablecoin/lib/openzeppelin-contracts"]
 	path = foundry-defi-stablecoin/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "foundry-airdrop/lib/openzeppelin-contracts"]
+	path = foundry-airdrop/lib/openzeppelin-contracts
+	url = https://github.com/openzeppelin/openzeppelin-contracts
+[submodule "foundry-airdrop/lib/murky"]
+	path = foundry-airdrop/lib/murky
+	url = https://github.com/dmfxyz/murky
+[submodule "foundry-airdrop/lib/foundry-devops"]
+	path = foundry-airdrop/lib/foundry-devops
+	url = https://github.com/cyfrin/foundry-devops
